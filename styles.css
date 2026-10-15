@@ -1,0 +1,6 @@
+.secret-mask-value {
+  color: var(--text-muted);
+  font-family: var(--font-monospace);
+  background-color: var(--background-secondary);
+  border-radius: var(--radius-s);
+}
