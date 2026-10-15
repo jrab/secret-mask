@@ -65,6 +65,8 @@ Before screen sharing, test:
 - Open synthetic assignments, prefixed tokens, and a multiline private-key
   block in source mode, Live Preview, and reading view, including code fences.
 - Paste and edit a token, switch notes, split panes, scroll, and open a popout.
+- Leave existing notes open, restart Obsidian, and confirm masking applies to
+  those notes and later edits as well as newly created notes.
 - Toggle masking using the keyboard command palette and the ribbon. Confirm
   the status, reload behavior, and restoration after disabling the plugin.
 - Confirm the file contents remain unchanged. Check editor copy/paste so you
