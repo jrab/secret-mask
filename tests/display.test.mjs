@@ -5,6 +5,7 @@ import { EditorView } from '@codemirror/view';
 import { JSDOM } from 'jsdom';
 import { secretMaskField } from '../src/editor.ts';
 import { ReadingMask } from '../src/reading.ts';
+import { syntheticTokens } from './fixtures.mjs';
 
 test('editor decorations mask full tokens and multiline keys without changing the note', () => {
   const secret = 'sk-' + 'x'.repeat(32);
@@ -23,7 +24,7 @@ test('editor decorations mask full tokens and multiline keys without changing th
 });
 
 test('reading view handles inline splits, code, attributes, toggling, and restoration', () => {
-  const dom = new JSDOM('<main><p>api_key=<strong>synthetic</strong>-value</p><pre></pre><a>Link</a></main>');
+  const dom = new JSDOM('<main><p>jev_key=<strong>sje</strong>jej</p><pre></pre><a>Link</a></main>');
   const doc = dom.window.document;
   // Obsidian supplies this cross-window narrowing helper on Node.
   dom.window.Node.prototype.instanceOf = function (type) { return this instanceof this.ownerDocument.defaultView[type.name]; };
@@ -32,14 +33,14 @@ test('reading view handles inline splits, code, attributes, toggling, and restor
   try {
     const element = doc.querySelector('main');
     const token = 'ghp_' + 'x'.repeat(36);
-    element.querySelector('pre').textContent = token;
+    element.querySelector('pre').textContent = [token, ...syntheticTokens].join('\n');
     element.querySelector('a').setAttribute('href', `https://example.invalid/?api_key=${token}`);
     element.querySelector('a').setAttribute('title', token);
     const before = element.innerHTML;
     const mask = new ReadingMask(element);
     mask.update(true);
-    assert.equal(element.querySelector('p').textContent, 'api_key=****');
-    assert.equal(element.querySelector('pre').textContent, '****');
+    assert.equal(element.querySelector('p').textContent, 'jev_key=****');
+    assert.equal(element.querySelector('pre').textContent, '****\n****\n****');
     assert.equal(element.querySelector('a').getAttribute('href'), '');
     assert.equal(element.querySelector('a').getAttribute('title'), '****');
     assert.ok(!element.outerHTML.includes(token));
@@ -77,7 +78,16 @@ test('editor DOM shows only stars while cursor movement and edits preserve the s
     view.dispatch({ selection: { anchor: 8, head: source.length } });
     assert.equal(view.contentDOM.textContent, 'api_key=****');
     assert.equal(view.state.doc.toString(), source);
-    view.dispatch({ changes: { from: 0, to: source.length, insert: 'ordinary note' } });
+    for (const [pasted, masked] of [
+      ['jev_key=sjejej', 'jev_key=****'],
+      ...syntheticTokens.map(token => [token, '****']),
+    ]) {
+      view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: pasted } });
+      assert.equal(view.contentDOM.textContent, masked);
+      assert.ok(!view.dom.outerHTML.includes(pasted));
+      assert.equal(view.state.doc.toString(), pasted);
+    }
+    view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: 'ordinary note' } });
     assert.equal(view.contentDOM.textContent, 'ordinary note');
   } finally {
     view?.destroy();

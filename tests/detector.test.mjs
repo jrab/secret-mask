@@ -1,6 +1,32 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { findSecrets, maskSlice, maskText } from '../src/detector.ts';
+import { syntheticTokens } from './fixtures.mjs';
+
+test('vendor key labels and the reported bare token formats are masked', () => {
+  for (const label of ['jev_key', 'JEV_KEY', 'my_service_key', 'service-key']) {
+    assert.equal(maskText(`${label}=sjejej`), `${label}=****`);
+    assert.equal(maskText(`"${label}": "synthetic-value",`), `"${label}": "****",`);
+    assert.equal(maskText(`${label}: synthetic-value`), `${label}: ****`);
+  }
+  for (const token of syntheticTokens) {
+    assert.equal(maskText(token), '****');
+    assert.equal(maskText(`Before \`${token}\` after`), 'Before `****` after');
+    assert.equal(maskText(`jev_key=${token}`), 'jev_key=****');
+    assert.equal(maskText(`"${token}",`), '"****",');
+  }
+});
+
+test('short prefix lookalikes and unrelated labels remain visible', () => {
+  for (const source of ['re_member', 'apikey_config', 'monkey=banana', 'keyboard=mechanical',
+    'sjejej', '21065870af77ab0534b53aa05ff8f7e4183a5']) {
+    assert.equal(maskText(source), source);
+  }
+  for (const prefix of ['apikey_', 're_']) {
+    assert.equal(maskText(prefix + 'x'.repeat(15)), prefix + 'x'.repeat(15));
+    assert.equal(maskText(prefix + 'x'.repeat(16)), '****');
+  }
+});
 
 test('provider tokens and authorization headers are masked', () => {
   const tokens = [

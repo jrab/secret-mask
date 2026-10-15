@@ -7,12 +7,18 @@ export interface SecretRange {
 const rules: { pattern: RegExp; group?: number }[] = [
   { pattern: /-----BEGIN (?:[A-Z0-9]+ )?PRIVATE KEY-----[\s\S]*?(?:-----END (?:[A-Z0-9]+ )?PRIVATE KEY-----|$)/g },
   { pattern: /\bsk-(?:proj-|ant-api\d{2}-)?[A-Za-z0-9_-]{16,}/g },
+  { pattern: /\b(?:apikey_|re_)[A-Za-z0-9_-]{16,}/g },
   { pattern: /\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})/g },
   { pattern: /\bxox[baprs]-[A-Za-z0-9-]{10,}/g },
   { pattern: /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/g },
   { pattern: /\b(?:sk|rk)_(?:live|test)_[A-Za-z0-9]{16,}/g },
   { pattern: /\bAIza[A-Za-z0-9_-]{20,}/g },
   { pattern: /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g },
+  {
+    // Credential labels can use a service name instead of the literal api_key.
+    pattern: /\b([\w.-]+[_-]key["']?[ \t]*[:=][ \t]*(?:["']|(?:bearer|token)[ \t]+)?)([^\s"'`,;<>]+)/gi,
+    group: 2,
+  },
   {
     pattern: /\b((?:[\w.-]*[_-])?(?:api[_-]?key|access[_-]?key|secret(?:[_-]?access[_-]?key)?|token|password|passwd|client[_-]?secret|authorization)["']?\s*[:=][ \t]*(?:["']|(?:bearer|token)[ \t]+)?)([^\s"'`,;<>]+)/gi,
     group: 2,
