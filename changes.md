@@ -2,6 +2,10 @@
 
 ## 2026-10-15
 
+- Added detection for service labels ending in `_key` or `-key`, bare
+  `apikey_` tokens, and Resend `re_` tokens in 0.1.2. Added regressions for the
+  reported fake values in editors and reading view, plus a detailed usage,
+  coverage, limits, and troubleshooting guide in the README.
 - Fixed masking in notes restored before workspace startup completes. Existing
   editors now refresh when the layout is ready, including split panes and later
   edits. Added a regression test using real CodeMirror editors.
