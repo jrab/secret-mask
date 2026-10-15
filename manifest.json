@@ -1,0 +1,9 @@
+{
+  "id": "secret-mask",
+  "name": "Secret mask",
+  "version": "0.1.0",
+  "minAppVersion": "1.8.7",
+  "description": "Mask detected secrets in open notes while screen sharing.",
+  "author": "jrab",
+  "isDesktopOnly": false
+}
