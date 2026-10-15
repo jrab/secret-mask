@@ -50,6 +50,9 @@ export default class SecretMask extends Plugin {
     this.status = this.addStatusBarItem();
     this.updateStatus();
     this.app.workspace.onLayoutReady(() => {
+      // Registration can run before layout readiness, when Obsidian skips
+      // updating existing editors. Reconfigure restored notes once ready.
+      this.app.workspace.updateOptions();
       this.app.workspace.iterateAllLeaves(leaf => {
         if (leaf.view instanceof MarkdownView) leaf.view.previewMode.rerender(true);
       });
